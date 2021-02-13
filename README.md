@@ -1,7 +1,7 @@
 
 # toolcache
 
-`toolcache` makes it easy to create and configure caches in python
+`toolcache` makes it simple to create and configure caches in python
 
 ## Features
 - save caches to memory or to disk
@@ -88,12 +88,12 @@ f.cache.delete_all_entries()
 ```
 
 ### More Examples
-- [Cache Eviction Policies](examples/cache_eviction_policies.py)
-- [Define Custom Cache](examples/define_custom_cache.py)
-- [Disk Cache Options](examples/disk_cache_options.py)
-- [Function Hashing Options](examples/function_hashing_options.py)
+- [Configure Hashing](examples/function_hashing_options.py)
+- [Configure Disk Caches](examples/disk_cache_options.py)
+- [Use Cache Eviction Policies](examples/cache_eviction_policies.py)
 - [Monitor Cache Usage](examples/monitor_cache_statistics.py)
-- [Standalone Caches](examples/standalone_cache.py)
+- [Create Standalone Caches](examples/standalone_cache.py)
+- [Define Custom Cachetypes](examples/define_custom_cache.py)
 
 ## Cache Reference
 
@@ -101,11 +101,11 @@ f.cache.delete_all_entries()
 
 `toolcache` includes 3 cache types that each inherit from abstract cache class `BaseCache`:
 
-| cachetype     | description | use case |
-| --            | -- | -- |
+| cachetype     | description                                               | use case |
+| --            | --                                                        | -- |
 | `MemoryCache` | cache that saves each entry as key-value pair in a `dict` | speed |
-| `DiskCache`   | cache that saves each entry as a file to disk | persistence, or large data that does not fit in memory |
-| `NullCache`   | cache that does not save any entries | programmatically disabling cache |
+| `DiskCache`   | cache that saves each entry as a file to disk             | persistence, or large data that does not fit in memory |
+| `NullCache`   | cache that does not save any entries                      | programmatically disabling cache |
 
 
 ### Cache Creation
@@ -118,28 +118,28 @@ Caches can be created in two ways:
 
 The configuration options listed below can be passed to `toolcache.cache()` or passed to a standalone cache during initialization.
 
-#### Base Cache Config
+#### General Config
 these configuration options are available to every cache
-| arg | description | example value | default behavior |
-| --           | --          | --           | -- |
-| `safety`     | `str` name of concurrency safety level, one of `'thread'`, `'process'`, or `None` | `'thread'`        | `'thread'` |
-| `verbose`    | `bool` of whether to print info whenever saving to or loading from cache          | `False`           | `False` |
+| arg          | description                                                                       | example value       | default behavior |
+| --           | --                                                                                | --                  | -- |
+| `safety`     | `str` name of concurrency safety level, one of `'thread'`, `'process'`, or `None` | `'thread'`          | `'thread'` |
+| `verbose`    | `bool` of whether to print info whenever saving to or loading from cache          | `False`             | `False` |
 | `cache_name` | `bool` of whether to print info whenever saving to or loading from cache          | `'important_cache'` | use decorated function name, or uuid for  a standalone cache |
 
 #### Hash Config
-| arg | description | example value | default behavior |
-| --           | --          | --           | -- |
-| `f_hash`    | custom function for computing hash | `lambda x: hash(x)` | `toolcache. compute_hash_json()` |
-| `normalize_hash_inputs`    | bool of whether to normalize function calls so that for a function `f` with args `a` and `b`, the calls `f(1, 2)` and `f(a=1, b=2)` are equivalent | `False` | `False` |
-| `hash_include_args`    | `list` of `str` names of arguments used to compute hash | `['arg1', 'arg2']`       | include all args |
-| `hash_exclude_args`    | `list` of `str` names of arguments excluded from hash | `['arg3', 'arg4']`       | exclude no args |
+| arg                     | description                                              | example value | default behavior |
+| --                      | --                                                       | --            | --               |
+| `f_hash`                | custom function for computing hash | `lambda x: hash(x)` | `toolcache. compute_hash_json()` |
+| `normalize_hash_inputs` | bool of whether to normalize function calls so that for a function `f` with args `a` and `b`, the calls `f(1, 2)` and `f(a=1, b=2)` are equivalent | `False` | `False` |
+| `hash_include_args`     | `list` of `str` names of arguments used to compute hash  | `['arg1', 'arg2']`               | include all args |
+| `hash_exclude_args`     | `list` of `str` names of arguments excluded from hash    | `['arg3', 'arg4']`               | exclude no args |
 
 #### Eviction Config
-| arg | description | example value | default behavior |
-| --                | --          | --           | -- |
-| `ttl`             | [`Timelength`](https://github.com/sslivkoff/tooltime) of time-to-live maximum age for entries in cache | `'1000s'`     | `float('inf')` |
-| `max_size`        | `int` of max size of cache size | `1000`     | no max size |
-| `max_size_policy` | `str` name of eviction policy to use when `max_size` is exceeded, one of `'lru'`, `'fifo'`, or `'lfu'`  | `'fifo'`    | `'lru'' |
+| arg               | description                                                                                            | example value | default behavior |
+| --                | --                                                                                                     | --            | -- |
+| `ttl`             | [`Timelength`](https://github.com/sslivkoff/tooltime#timelength-representations) of time-to-live maximum age for entries in cache | `'1000s'`     | no max age |
+| `max_size`        | `int` of max size of cache size                                                                        | `1000`        | no max size |
+| `max_size_policy` | `str` name of eviction policy to use when `max_size` is exceeded, one of `'lru'`, `'fifo'`, or `'lfu'` | `'fifo'`      | `'lru'' |
 
 #### Statistic Tracking Config
 | arg | description | example value | default behavior |
@@ -170,11 +170,11 @@ To save a function input-output pair within a cache, a unique hash must be taken
 Under the default hash configuration, each input arg should either be json-serializable or be a hashable object (i.e. it implements a `__hash__()` method). By default `toolcache` uses [`orjson`](https://github.com/ijl/orjson) to create these hashes quickly.
 
 If function inputs do not satisfy these criteria, one or more of the cache config parameters should be used:
-| parameter | description | example |
-| -- | -- | --      |
-| `f_hash` | provide a custom hash function that takes the same args and kwargs as the decorated function | `@toolcache.cache(..., f_hash=f_custom_hash)` |
-| `hash_include_args` | specify `list` of arg names that should be used to compute hash | `@toolcache.cache(..., hash_include_args=['arg1', 'arg2'])` |
-| `hash_exclude_args` | specify `list` of arg names that should not be used to compute hash | `@toolcache.cache(..., hash_exclude_args=['arg3', 'arg4'])` |
+| parameter           | description                                                                                  | example |
+| --                  | --                                                                                           | -- |
+| `f_hash`            | provide a custom hash function that takes the same args and kwargs as the decorated function | `@toolcache.cache(..., f_hash=f_custom_hash)` |
+| `hash_include_args` | specify `list` of arg names that should be used to compute hash                              | `@toolcache.cache(..., hash_include_args=['arg1', 'arg2'])` |
+| `hash_exclude_args` | specify `list` of arg names that should not be used to compute hash                          | `@toolcache.cache(..., hash_exclude_args=['arg3', 'arg4'])` |
 
 `toolcache.cache()` also works on functions that have `*args` or `**kwargs` for inputs
 
@@ -198,14 +198,14 @@ The cache instance associated with a decorated function `f()` can be accessed us
 
 These methods are available on every cache instance:
 
-| method | description |
-| --     | -- |
+| method                 | description |
+| --                     | -- |
 | `compute_entry_hash()` | compute hash of entry |
-| `save_entry()` | save entry data to cache |
-| `exists_in_cache()` | return `bool` of whether entry exists in cache |
-| `load_entry()` | load entry data from cache |
-| `get_cache_size()` | return `int` number of items in cache |
-| `delete_entry()` | remove entry from cache |
+| `save_entry()`         | save entry data to cache |
+| `exists_in_cache()`    | return `bool` of whether entry exists in cache |
+| `load_entry()`         | load entry data from cache |
+| `get_cache_size()`     | return `int` number of items in cache |
+| `delete_entry()`       | remove entry from cache |
 | `delete_all_entries()` | delete all entries from cache |
 
 
