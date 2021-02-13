@@ -16,37 +16,84 @@
 
 ## Contents
 - [Example Usage](#example-usage)
-- [Reference](#function-reference)
+- [Reference](#cache-reference)
     - [Cache Types](#cache-types)
     - [Cache Creation](#cache-creation)
     - [Cache Configuration](#cache-configuration)
-    - [Cache Decorators](#cache-function-decorators)
+    - [Cache Decorators](#cache-decorators)
     - [Cache Methods](#cache-methods)
 - [Frequently Asked Questions](#frequently-asked-questions)
 
 ## Example Usage
 
+### Creating Caches
 ```python
 import toolcache
 
-
-# use cache stored in memory
+# memoize function with memory cache
 @toolcache.cache('memory')
 def f(a, b, c):
     return a * b * c
 
-
-# use cache stored on disk
+# memoize function with disk cache, stored in a tempdir
 @toolcache.cache('disk')
 def f(a, b, c):
     return a * b * c
 
-
-# specify which args are used to create unique hash of inputs
-@toolcache.cache('disk', hash_args=['a', 'c'])
+# memoize function with disk cache, stored in a persistent dir
+@toolcache.cache('disk', cache_dir='/path/to/cache/dir')
 def f(a, b, c):
     return a * b * c
+    
+# remove cache entries once they reach a specific age
+@toolcache.cache('disk', ttl='24 hours')
+def f(a, b, c):
+    return a * b * c
+
+# remove cache entries once cache reaches a specific size
+@toolcache.cache('disk', max_size=3, max_size_policy='fifo')
+def f(a, b, c):
+    return a * b * c
+
+# specify which args are used to create unique hash of inputs
+@toolcache.cache('disk', hash_args=['a', 'b'])
+def f(a, b, c):
+    return a * b * c
+
+# create standalone cache
+standalone_cache = toolcache.MemoryCache()
 ```
+
+### Using Caches
+
+```python
+# get cache size
+print(f.cache.get_cache_size())
+> 4
+
+# track cache usage statistics
+print(f.cache.stats)
+> {'n_checks': 6,
+>  'n_deletes': 2,
+>  'n_hashes': 8,
+>  'n_hits': 2,
+>  'n_loads': 1,
+>  'n_misses': 4,
+>  'n_saves': 3,
+>  'n_size_evictions': 0,
+>  'n_ttl_evictions': 0}
+
+# clear cache
+f.cache.delete_all_entries()
+```
+
+### More Examples
+- [Cache Eviction Policies](examples/cache_eviction_policies.py)
+- [Define Custom Cache](examples/define_custom_cache.py)
+- [Disk Cache Options](examples/disk_cache_options.py)
+- [Function Hashing Options](examples/function_hashing_options.py)
+- [Monitor Cache Usage](examples/monitor_cache_statistics.py)
+- [Standalone Caches](examples/standalone_cache.py)
 
 ## Cache Reference
 
