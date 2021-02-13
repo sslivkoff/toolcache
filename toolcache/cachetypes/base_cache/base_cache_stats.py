@@ -138,7 +138,7 @@ class BaseCacheStats:
         """get access count for an individual entry"""
         if self.track_access_counts is None:
             raise Exception('not tracking entry access counts')
-        return self.entry_access_times[entry_hash]
+        return self.entry_access_counts[entry_hash]
 
     def get_all_entry_access_counts(self, must_exist=True):
         """get access counts for all entries"""
@@ -169,25 +169,7 @@ class BaseCacheStats:
         else:
             print('[basic usage stats not being tracked]')
 
-        if self.track_creation_times is not None:
-            print(
-                '- '
-                + str(len(self.track_creation_times))
-                + ' creation_times being tracked '
-                + 'see cache attribute `track_creation_times`'
-            )
-        if self.track_access_times is not None:
-            print(
-                '- '
-                + str(len(self.track_access_times))
-                + ' access_times being tracked '
-                + 'see cache attribute `track_access_times`'
-            )
-        if self.track_access_counts is not None:
-            print(
-                '- '
-                + str(len(self.track_access_counts))
-                + ' access_counts being tracked '
-                + 'see cache attribute `track_access_counts`'
-            )
-
+        print('detailed usage:')
+        print('    - tracking creation times:', bool(self.track_creation_times))
+        print('    - tracking access times:', bool(self.track_access_times))
+        print('    - tracking access counts:', bool(self.track_access_counts))
