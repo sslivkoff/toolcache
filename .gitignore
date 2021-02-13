@@ -1,0 +1,8 @@
+*.pyc
+*.egg-info
+TODO.md
+build/
+dist/
+notebooks/
+future/
+pyproject.toml
