@@ -35,14 +35,14 @@ class BaseCacheStats:
         # creation times
         if track_creation_times is None:
             if self.max_size_policy == 'fifo':
-                track_creation_times = None
+                track_creation_times = True
             else:
                 track_creation_times = track_detailed_stats
         if track_creation_times:
             self.entry_creation_times = {}
         else:
             if self.max_size_policy == 'fifo':
-                raise Exception('must track_access_times if using fifo')
+                raise Exception('must track_creation_times if using fifo')
             self.entry_creation_times = None
         self.track_creation_times = track_creation_times
 

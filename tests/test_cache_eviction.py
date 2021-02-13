@@ -78,7 +78,7 @@ def test_lfu_cache(cachetype):
 @pytest.mark.parametrize('cachetype', cachetypes)
 def test_fifo_cache(cachetype):
 
-    @toolcache.cache(cachetype, max_size=3, max_size_policy='lfu')
+    @toolcache.cache(cachetype, max_size=3, max_size_policy='fifo')
     def f(a):
         return a * 2
 
