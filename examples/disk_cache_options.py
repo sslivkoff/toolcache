@@ -1,3 +1,11 @@
+"""toolcache can save caches to disk
+
+use cases include:
+- the cache needs to be persistent
+- the cache is too large to fit in memory
+
+use `f_disk_save` and `f_disk_load` to control how cache data is saved to disk
+"""
 
 import toolcache
 
