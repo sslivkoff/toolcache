@@ -17,7 +17,7 @@ class BaseCacheEviction:
 
         # set ttl
         if isinstance(ttl, str):
-            ttl = tooltime.timelength_label_to_seconds(ttl)
+            ttl = tooltime.timelength_to_seconds(ttl)
         self.ttl = ttl
 
         # set size limits and policy
