@@ -32,9 +32,9 @@ class DiskCache(base_cache.BaseCache):
         - cache_dir: str of path where cache should reside, if None use tmpdir
         - file_format: str name of format used to save data
             - one of 'pickle' or 'json'
-        - f_disk_save: custom function for saving data
+        - f_disk_save: custom function for saving data to disk
             - function should take `entry_path` and `entry_data` as arguments
-        - f_disk_load: custom function for loading data
+        - f_disk_load: custom function for loading data from disk
             - function should take `entry_path` as an argument
         - super_kwargs: kwargs passed on to BaseCache.__init__()
         """
