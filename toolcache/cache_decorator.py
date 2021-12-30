@@ -128,7 +128,6 @@ def _create_new_f(old_f, cache_instance, add_cache_args):
 
         @functools.wraps(old_f)
         def new_f(*args, **kwargs):
-            print("OHEY")
             return execute_with_cache(
                 old_f=old_f,
                 cache_instance=cache_instance,
