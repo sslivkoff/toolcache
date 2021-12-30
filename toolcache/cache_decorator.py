@@ -2,11 +2,22 @@
 
 import functools
 import inspect
+import typing
+
+from typing_extensions import ParamSpec
+from typing import TypeVar
 
 from . import cachetypes
+from . import spec
 
 
-def cache(cachetype=None, add_cache_args=True, **cache_kwargs):
+P = ParamSpec('P')
+R = TypeVar('R')
+
+
+def cache(
+    cachetype: spec.CachetypeSpec, add_cache_args: bool = True, **cache_kwargs
+) -> typing.Callable[[typing.Callable[P, R]], typing.Callable[P, R]]:
     """decorate function to add a cache
 
     ## Added Function Args
@@ -63,7 +74,7 @@ def cache(cachetype=None, add_cache_args=True, **cache_kwargs):
     - decorated function that uses cache for saving and loading function outputs
     """
 
-    def decorator(f):
+    def decorator(f: typing.Callable[P, R]) -> typing.Callable[P, R]:
 
         # create cache
         CacheClass = cachetypes.get_cache_class(cachetype)
@@ -81,7 +92,9 @@ def cache(cachetype=None, add_cache_args=True, **cache_kwargs):
     return decorator
 
 
-def _create_new_f(old_f, cache_instance, add_cache_args):
+def _create_new_f(
+    old_f: typing.Callable[P, R], cache_instance, add_cache_args
+) -> typing.Callable[P, R]:
     """create new function by decorating old_f to use cache_instance
 
     ## Inputs
@@ -94,9 +107,12 @@ def _create_new_f(old_f, cache_instance, add_cache_args):
 
         # ensure not overwriting args
         argspec = inspect.getfullargspec(old_f)
-        arg_names = (
-            argspec.args + argspec.kwonlyargs + [argspec.varargs, argspec.varkw]
-        )
+        arg_names: list[str] = argspec.args + argspec.kwonlyargs
+        if argspec.varargs is not None:
+            arg_names.append(argspec.varargs)
+        if argspec.varkw is not None:
+            arg_names.append(argspec.varkw)
+
         cache_args = ['cache_load', 'cache_save', 'cache_verbose']
         for cache_arg in cache_args:
             if cache_arg in arg_names:
@@ -109,19 +125,19 @@ def _create_new_f(old_f, cache_instance, add_cache_args):
         @functools.wraps(old_f)
         def new_f(
             *args,
-            cache_load=True,
-            cache_save=True,
-            cache_verbose=None,
+            cache_load: bool = True,
+            cache_save: bool = True,
+            cache_verbose: typing.Optional[bool] = None,
             **kwargs
-        ):
+        ) -> R:
             return execute_with_cache(
                 old_f=old_f,
                 cache_instance=cache_instance,
                 args=args,
                 kwargs=kwargs,
-                cache_load=cache_load,
-                cache_save=cache_save,
-                cache_verbose=cache_verbose,
+                # cache_load=cache_load,
+                # cache_save=cache_save,
+                # cache_verbose=cache_verbose,
             )
 
     else:
@@ -138,7 +154,7 @@ def _create_new_f(old_f, cache_instance, add_cache_args):
                 cache_verbose=None,
             )
 
-    new_f.cache = cache_instance
+    new_f.cache = cache_instance  # type: ignore
 
     return new_f
 
@@ -176,7 +192,9 @@ def execute_with_cache(
     loaded_from_cache = None
     if cache_load:
         loaded_from_cache = cache_instance.load_entry(
-            entry_hash=entry_hash, verbose=cache_verbose, must_exist=False,
+            entry_hash=entry_hash,
+            verbose=cache_verbose,
+            must_exist=False,
         )
 
     # retrieve output

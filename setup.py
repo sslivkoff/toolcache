@@ -17,6 +17,7 @@ setuptools.setup(
     install_requires=[
         'orjson',
         'tooltime',
+        'typing_extensions',
     ],
     python_requires='>=3.6',
 )
