@@ -9,7 +9,7 @@ import time
 try:
     import orjson as json
 except ImportError:
-    import json
+    import json  # type: ignore
 
 from . import base_cache
 
