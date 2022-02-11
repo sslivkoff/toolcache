@@ -1,18 +1,20 @@
 """functions for adding caches to python functions using decoration"""
 
+from __future__ import annotations
+
 import functools
 import inspect
 import typing
 
-from typing_extensions import ParamSpec
-from typing import TypeVar
+if typing.TYPE_CHECKING:
+    from typing_extensions import ParamSpec
+    from typing import TypeVar
+
+    P = ParamSpec('P')
+    R = TypeVar('R')
 
 from . import cachetypes
 from . import spec
-
-
-P = ParamSpec('P')
-R = TypeVar('R')
 
 
 def cache(
