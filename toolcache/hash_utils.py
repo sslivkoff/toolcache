@@ -1,8 +1,6 @@
 import hashlib
 import inspect
 
-import orjson
-
 
 json_compatible_types = (int, float, str, list, dict, type(None))
 
@@ -27,7 +25,15 @@ def compute_hash_json(*args, **kwargs):
 
     # compute hash of data
     hash_data = ({'args': args, 'kwargs': kwargs},)
-    return orjson.dumps(hash_data, option=orjson.OPT_SORT_KEYS)
+
+    try:
+        import orjson
+
+        return orjson.dumps(hash_data, option=orjson.OPT_SORT_KEYS)
+    except ImportError:
+        import json
+
+        return json.dumps(hash_data, sort_keys=True)
 
 
 def compute_hash_json_digest(*args, **kwargs):
@@ -70,7 +76,9 @@ def get_function_input_hash(
         argspec = inspect.getfullargspec(f)
 
     # get args by names
-    args_by_names = _get_args_by_names(argspec=argspec, args=args, kwargs=kwargs)
+    args_by_names = _get_args_by_names(
+        argspec=argspec, args=args, kwargs=kwargs
+    )
 
     # take subset of args
     args_by_names = _get_args_subset(
@@ -131,9 +139,7 @@ def _get_args_subset(args_by_names, include_args=None, exclude_args=None):
         )
 
     if include_args is not None:
-        kwargs = {
-            name: args_by_names['kwargs'][name] for name in include_args
-        }
+        kwargs = {name: args_by_names['kwargs'][name] for name in include_args}
         return dict(varargs=[], kwargs=kwargs)
 
     elif exclude_args is not None:

@@ -6,7 +6,10 @@ import pickle
 import tempfile
 import time
 
-import orjson
+try:
+    import orjson as json
+except ImportError:
+    import json
 
 from . import base_cache
 
@@ -144,7 +147,7 @@ class DiskCache(base_cache.BaseCache):
                 pickle.dump(entry_data, file)
         elif self.file_format == 'json':
             with open(cache_path, 'wb') as file:
-                file.write(orjson.dumps(entry_data))
+                file.write(json.dumps(entry_data))
         else:
             raise Exception('unknown file format: ' + str(self.file_format))
 
@@ -155,7 +158,7 @@ class DiskCache(base_cache.BaseCache):
                 return pickle.load(file)
         elif self.file_format == 'json':
             with open(cache_path, 'r') as file:
-                return orjson.loads(file.read())
+                return json.loads(file.read())
         else:
             raise Exception('unknown file format: ' + str(self.file_format))
 
@@ -216,3 +219,4 @@ class DiskCache(base_cache.BaseCache):
         """use file creation time to determine creation time of cache entry"""
         cache_path = self._get_cache_path(entry_hash)
         return os.path.getctime(cache_path)
+

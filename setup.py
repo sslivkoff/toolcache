@@ -15,7 +15,6 @@ setuptools.setup(
     url='https://github.com/sslivkoff/toolcache',
     packages=setuptools.find_packages(),
     install_requires=[
-        'orjson',
         'tooltime',
         'typing_extensions',
     ],
