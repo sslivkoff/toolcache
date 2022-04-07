@@ -8,7 +8,7 @@ with open("README.md", "r", encoding="utf-8") as f:
 
 setuptools.setup(
     name='toolcache',
-    version='0.3.0',
+    version='0.4.0',
     description='makes it easy to create and configure caches in python',
     long_description=long_description,
     long_description_content_type="text/markdown",
