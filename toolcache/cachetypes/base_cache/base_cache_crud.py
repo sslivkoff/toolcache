@@ -151,6 +151,22 @@ class BaseCacheCRUD:
 
             return entry_data
 
+    async def async_load_entry(
+        self,
+        entry_hash=None,
+        args=None,
+        kwargs=None,
+        verbose=None,
+        must_exist=False,
+    ):
+        return self.load_entry(
+            entry_hash=entry_hash,
+            args=args,
+            kwargs=kwargs,
+            verbose=verbose,
+            must_exist=must_exist,
+        )
+
     def delete_entry(self, entry_hash=None, args=None, kwargs=None):
         """delete entry from cache
 

@@ -172,6 +172,8 @@ def execute_with_cache(
 ):
     """execute old_f with specified inputs and use cache if appropriate
 
+    TODO: might be worth it to create a totally separate decorator for async
+
     ## Inputs
     - old_f: function to call
     - args: list of input args
@@ -181,6 +183,7 @@ def execute_with_cache(
     - cache_save: bool of whether to save output to cache
     - cache_verbose: bool of whether to print cache operation info
     """
+    is_coroutine = _iscoroutinefunction(old_f)
 
     # set verbosity
     if cache_verbose is None:
@@ -203,15 +206,65 @@ def execute_with_cache(
     if loaded_from_cache is not None:
 
         # use output from cache
-        output = loaded_from_cache
+        if is_coroutine:
+            async def async_get_from_cache():
+                return loaded_from_cache
+            output = async_get_from_cache()
+        else:
+            output = loaded_from_cache
 
     else:
-        # compute output
-        output = old_f(*args, **kwargs)
 
-        # save to cache
-        if cache_save:
-            cache_instance.save_entry(entry_hash, output, verbose=cache_verbose)
+        if is_coroutine:
+
+            output = async_f_wrapper(
+                old_f=old_f,
+                args=args,
+                kwargs=kwargs,
+                cache_save=cache_save,
+                entry_hash=entry_hash,
+                cache_instance=cache_instance,
+                cache_verbose=cache_verbose,
+            )
+
+        else:
+
+            # compute output
+            output = old_f(*args, **kwargs)
+
+            # save to cache
+            if cache_save:
+                cache_instance.save_entry(
+                    entry_hash, output, verbose=cache_verbose
+                )
 
     return output
+
+
+async def async_f_wrapper(
+    old_f, args, kwargs, cache_save, entry_hash, cache_instance, cache_verbose
+):
+
+    # await result
+    output = await old_f(*args, **kwargs)
+
+    # save to cache
+    if cache_save:
+        cache_instance.save_entry(entry_hash, output, verbose=cache_verbose)
+
+    return output
+
+
+def _iscoroutinefunction(function):
+    """lightweight version of inspect.iscoroutinefunction()"""
+
+    import types
+
+    if not isinstance(function, types.FunctionType):
+        return False
+
+    # inspect.CO_COROUTINE
+    flag = 128
+
+    return bool(function.__code__.co_flags & flag)
 
