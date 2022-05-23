@@ -1,7 +1,5 @@
 import types
 
-import tooltime
-
 
 class BaseCacheEviction:
     def _initialize_eviction_policies(
@@ -17,6 +15,8 @@ class BaseCacheEviction:
 
         # set ttl
         if isinstance(ttl, str):
+            import tooltime
+
             ttl = tooltime.timelength_to_seconds(ttl)
         self.ttl = ttl
 

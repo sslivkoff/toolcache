@@ -1,7 +1,3 @@
-import contextlib
-import threading
-import multiprocessing
-import uuid
 
 from . import base_cache_crud
 from . import base_cache_child_methods
@@ -85,6 +81,8 @@ class BaseCache(
             if old_f is not None:
                 self.cache_name = old_f.__name__
             else:
+                import uuid
+
                 self.cache_name = uuid.uuid4().hex
 
         # initialize eviction policies
@@ -119,16 +117,20 @@ class BaseCache(
     def _initialize_context_lock(self, safety):
         """initialize context lock used for thread or process safety"""
         if safety == 'thread':
+            import threading
+
             self.lock = threading.RLock()
         elif safety == 'process':
+            import multiprocessing
+
             self.lock = multiprocessing.RLock()
         elif safety is None:
             # nullcontext in python3.7 and above
             # see https://stackoverflow.com/a/45187287
+            import contextlib
             if hasattr(contextlib, 'nullcontext'):
                 self.lock = contextlib.nullcontext()
             else:
                 self.lock = contextlib.suppress()
         else:
             raise Exception('safety must be \'thread\', \'process\', or None')
-

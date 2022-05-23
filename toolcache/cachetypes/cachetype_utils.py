@@ -1,4 +1,5 @@
-import inspect
+from __future__ import annotations
+
 import typing
 
 from .. import spec
@@ -12,6 +13,7 @@ def get_cache_class(
     cachetype: spec.CachetypeSpec,
 ) -> typing.Type[base_cache.BaseCache]:
     """return cachetype class given either cachetype name or cachetype class"""
+    import inspect
 
     if isinstance(cachetype, str):
         if cachetype == 'disk':

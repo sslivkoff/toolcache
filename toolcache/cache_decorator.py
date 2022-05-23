@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import functools
-import inspect
 import typing
 
 if typing.TYPE_CHECKING:
@@ -108,6 +107,8 @@ def _create_new_f(
     if add_cache_args:
 
         # ensure not overwriting args
+        import inspect
+
         argspec = inspect.getfullargspec(old_f)
         arg_names: list[str] = argspec.args + argspec.kwonlyargs
         if argspec.varargs is not None:
@@ -207,8 +208,10 @@ def execute_with_cache(
 
         # use output from cache
         if is_coroutine:
+
             async def async_get_from_cache():
                 return loaded_from_cache
+
             output = async_get_from_cache()
         else:
             output = loaded_from_cache
@@ -267,4 +270,3 @@ def _iscoroutinefunction(function):
     flag = 128
 
     return bool(function.__code__.co_flags & flag)
-

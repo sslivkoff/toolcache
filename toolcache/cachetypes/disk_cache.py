@@ -1,15 +1,8 @@
 """class specifying a cache that stores entries on disk"""
 
 import os
-import pathlib
-import pickle
-import tempfile
 import time
 
-try:
-    import orjson as json
-except ImportError:
-    import json  # type: ignore
 
 from . import base_cache
 
@@ -44,6 +37,8 @@ class DiskCache(base_cache.BaseCache):
 
         # determine cache directory
         if cache_dir is None:
+            import tempfile
+
             cache_dir = tempfile.mkdtemp()
         self.cache_dir = cache_dir
 
@@ -102,6 +97,8 @@ class DiskCache(base_cache.BaseCache):
         self.f_disk_save(cache_path=cache_path, entry_data=entry_data)
 
         # touch file so that modification time is proxy for access time
+        import pathlib
+
         pathlib.Path(cache_path).touch()
 
     def _exists(self, entry_hash):
@@ -143,9 +140,13 @@ class DiskCache(base_cache.BaseCache):
         - entry_data: data to save at cache_path
         """
         if self.file_format == 'pickle':
+            import pickle
+
             with open(cache_path, 'wb') as file:
                 pickle.dump(entry_data, file)
         elif self.file_format == 'json':
+            json = self._get_json_module()
+
             with open(cache_path, 'wb') as file:
                 file.write(json.dumps(entry_data))
         else:
@@ -154,13 +155,24 @@ class DiskCache(base_cache.BaseCache):
     def _default_f_disk_load(self, cache_path):
         """default function for loading entries from disk"""
         if self.file_format == 'pickle':
+            import pickle
+
             with open(cache_path, 'rb') as file:
                 return pickle.load(file)
         elif self.file_format == 'json':
+            json = self._get_json_module()
+
             with open(cache_path, 'r') as file:
                 return json.loads(file.read())
         else:
             raise Exception('unknown file format: ' + str(self.file_format))
+
+    def _get_json_module(self):
+        try:
+            import orjson as json
+        except ImportError:
+            import json  # type: ignore
+        return json
 
     #
     # # introspection

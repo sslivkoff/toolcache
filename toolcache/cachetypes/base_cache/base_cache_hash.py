@@ -1,4 +1,3 @@
-import inspect
 
 from ... import hash_utils
 
@@ -58,6 +57,8 @@ class BaseCacheHash:
 
         # get argspec of old_f
         if old_f is not None:
+            import inspect
+
             self.old_f_argspec = inspect.getfullargspec(old_f)
         else:
             self.old_f_argspec = None

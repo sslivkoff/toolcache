@@ -1,6 +1,3 @@
-import hashlib
-import inspect
-
 
 json_compatible_types = (int, float, str, list, dict, type(None))
 
@@ -38,6 +35,8 @@ def compute_hash_json(*args, **kwargs):
 
 def compute_hash_json_digest(*args, **kwargs):
     """compute json hash of given args and kwargs and return md5 hex digest"""
+    import hashlib
+
     as_json = compute_hash_json(*args, **kwargs)
     return hashlib.md5(as_json).hexdigest()
 
@@ -69,6 +68,7 @@ def get_function_input_hash(
     - include_args: list of str names of args to include in hash
     - exclude_args: list of str names of args to exclude from hash
     """
+    import inspect
 
     if argspec is None:
         if f is None:
