@@ -9,5 +9,4 @@ from .cachetypes import (
 from .cache_decorator import cache
 
 
-__version__ = '0.4.0'
-
+__version__ = '0.4.1'
