@@ -1,4 +1,4 @@
-"""functions for managing python caches"""
+"""toolcache makes it easy to create and configure caches in memory or on disk"""
 
 from .cachetypes import (
     BaseCache,
