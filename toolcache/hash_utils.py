@@ -38,6 +38,8 @@ def compute_hash_json_digest(*args, **kwargs):
     import hashlib
 
     as_json = compute_hash_json(*args, **kwargs)
+    if isinstance(as_json, str):
+        as_json = as_json.encode('utf-8')
     return hashlib.md5(as_json).hexdigest()
 
 
